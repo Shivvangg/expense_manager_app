@@ -26,8 +26,8 @@ class _SideBarState extends State<SideBar> {
   @override
   void initState() {
     super.initState();
-    // _nameFuture = getName();
-    // _emailFuture = getEmail();
+    _nameFuture = getName();
+    _emailFuture = getEmail();
     // Initialize selectedSideMenu based on the current route
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
@@ -39,19 +39,21 @@ class _SideBarState extends State<SideBar> {
     });
   }
 
-  // Future<String> getName() async {
-  //   final companyProvider = Provider.of<CompanyProvider>(context, listen: false);
-  //   await companyProvider.loadCompanyData();
-  //   final companyName = companyProvider.companyData?.companyName ?? '';
-  //   return companyName;
-  // }
+  Future<String> getName() async {
+    // final companyProvider = Provider.of<CompanyProvider>(context, listen: false);
+    // await companyProvider.loadCompanyData();
+    // final companyName = companyProvider.companyData?.companyName ?? 'Shivang Pande';
+    final companyName = 'Shivang Pande';
+    return companyName;
+  }
 
-  // Future<String> getEmail() async {
-  //   final companyProvider = Provider.of<CompanyProvider>(context, listen: false);
-  //   await companyProvider.loadCompanyData();
-  //   final companyEmail = companyProvider.companyData?.email ?? '';
-  //   return companyEmail;
-  // }
+  Future<String> getEmail() async {
+    // final companyProvider = Provider.of<CompanyProvider>(context, listen: false);
+    // await companyProvider.loadCompanyData();
+    // final companyEmail = companyProvider.companyData?.email ?? 'pandeshivang2308@gmail.com';
+    final companyEmail = 'pandeshivang2308@gmail.com';
+    return companyEmail;
+  }
 
   void navigateTo(String routeName) {
     Navigator.pushNamedAndRemoveUntil(context, routeName, (route) => false);

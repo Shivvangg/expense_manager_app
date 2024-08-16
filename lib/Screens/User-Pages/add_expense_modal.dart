@@ -182,7 +182,8 @@ class _AddExpenseModalState extends State<AddExpenseModal> {
                     label: _labelController.text,
                     amount: _amount,
                     repeatable: _repeatable,
-                    date: _selectedDate,
+                    date: _selectedDate, 
+                    id: '66bc64aa9eef5c744dfe0c93',
                   );
                   Navigator.of(context).pop(expense);
                 },
