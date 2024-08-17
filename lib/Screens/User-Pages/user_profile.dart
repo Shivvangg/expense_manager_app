@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import '../../Graphs/expenses_bar_chart.dart';
 
 class UserProfile extends StatefulWidget {
@@ -9,19 +11,76 @@ class UserProfile extends StatefulWidget {
 }
 
 class _UserProfileState extends State<UserProfile> {
-  // Dummy data for demonstration
-  final String name = 'Shivang Pande';
-  final String email = 'pandeshivang2308@gmail.com';
-  final String mobile = '9512230809';
-  final double totalExpenses = 1234.56;
-  final List<double> monthlyExpenses = [
-    500,
-    600,
-    800,
-    700,
-    650,
-    900
-  ]; // Last 6 months expenses
+  // User data
+  String name = '';
+  String email = '';
+  String mobile = '';
+  double totalExpenses = 0;
+  List<double> monthlyExpenses = List.generate(6, (index) => 0); // Last 6 months expenses
+  List<String> months = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData();
+    fetchMonthlyExpenses();
+  }
+
+  Future<void> fetchUserData() async {
+    final response = await http.get(Uri.parse('http://localhost:8000/get/user/66bc64aa9eef5c744dfe0c93'));
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final user = data['user'];
+
+      setState(() {
+        name = user['username'];
+        email = user['email'];
+        mobile = user['phone'];
+        // Assuming current month expenses are the sum of all current month expenses
+        totalExpenses = user['expenses'].where((e) => DateTime.parse(e['date']).month == DateTime.now().month).fold(0.0, (sum, e) => sum + e['amount']);
+      });
+    } else {
+      // Handle error
+      throw Exception('Failed to load user data');
+    }
+  }
+
+  Future<void> fetchMonthlyExpenses() async {
+    final response = await http.post(
+      Uri.parse('http://localhost:8000/monthly/expense'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'userId': '66bc64aa9eef5c744dfe0c93'}),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body) as List;
+      List<double> expenses = List.generate(6, (index) => 0.0);
+      List<String> monthsList = List.generate(6, (index) => '');
+
+      for (var item in data) {
+        final month = item['month'];
+        final totalAmount = item['totalAmount'];
+        final DateTime date = DateTime.parse('$month-01');
+        final monthName = DateTime.now().month == date.month ? 'Current Month' : date.toLocal().month.toString();
+
+        if (monthsList.contains(monthName)) {
+          expenses[monthsList.indexOf(monthName)] = totalAmount;
+        } else {
+          monthsList.add(monthName);
+          expenses.add(totalAmount);
+        }
+      }
+
+      setState(() {
+        monthlyExpenses = expenses;
+        months = monthsList;
+      });
+    } else {
+      // Handle error
+      throw Exception('Failed to load monthly expenses');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,8 +105,7 @@ class _UserProfileState extends State<UserProfile> {
                 const Center(
                   child: CircleAvatar(
                     radius: 50,
-                    backgroundImage: AssetImage(
-                        'assets/profile_picture.png'), // Add a profile picture
+                    backgroundImage: AssetImage('assets/profile_picture.png'), // Add a profile picture
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -146,7 +204,8 @@ class _UserProfileState extends State<UserProfile> {
                         SizedBox(
                           height: 300,
                           child: ExpensesBarChart(
-                              monthlyExpenses: monthlyExpenses),
+                              monthlyExpenses: monthlyExpenses,
+                              months: months),
                         ),
                       ],
                     ),

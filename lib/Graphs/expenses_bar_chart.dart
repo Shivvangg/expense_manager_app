@@ -4,8 +4,13 @@ import 'package:intl/intl.dart';
 
 class ExpensesBarChart extends StatelessWidget {
   final List<double> monthlyExpenses;
+  final List<String> months; // Add months parameter
 
-  const ExpensesBarChart({required this.monthlyExpenses, super.key});
+  const ExpensesBarChart({
+    required this.monthlyExpenses,
+    required this.months, // Initialize months
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -39,22 +44,7 @@ class ExpensesBarChart extends StatelessWidget {
         ColumnSeries<double, String>(
           dataSource: monthlyExpenses,
           xValueMapper: (double expense, int index) {
-            switch (index) {
-              case 0:
-                return 'Jan';
-              case 1:
-                return 'Feb';
-              case 2:
-                return 'Mar';
-              case 3:
-                return 'Apr';
-              case 4:
-                return 'May';
-              case 5:
-                return 'Jun';
-              default:
-                return '';
-            }
+            return months[index]; // Use the months list for X values
           },
           yValueMapper: (double expense, _) => expense,
           color: Colors.teal,

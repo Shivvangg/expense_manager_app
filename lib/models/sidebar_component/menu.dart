@@ -24,7 +24,7 @@ List<Menu> sidebarMenus = [
         src: "assets/RiveAssets/icons.riv",
         artboard: "LIKE/STAR",
         stateMachineName: "STAR_Interactivity"),
-    route: '/issuedCertificates',
+    route: '/',
   ),
   Menu(
     title: "Repeated Expenses",
@@ -40,7 +40,7 @@ List<Menu> sidebarMenus = [
         src: "assets/RiveAssets/icons.riv",
         artboard: "SEARCH",
         stateMachineName: "SEARCH_Interactivity"),
-    route: '/lookForAgent',
+    route: '/searchExpense',
   ),
   Menu(
     title: "My Profile",
@@ -48,7 +48,7 @@ List<Menu> sidebarMenus = [
         src: "assets/RiveAssets/icons.riv",
         artboard: "USER",
         stateMachineName: "USER_Interactivity"),
-    route: '/company-profile',
+    route: '/myProfile',
   ),
 ];
 // List<Menu> sidebarMenus2 = [

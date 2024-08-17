@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'Screens/User-Pages/expenses.dart';
+import 'Screens/User-Pages/search_expenses.dart';
+import 'package:expense_manager/Screens/User-Pages/user_profile.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,10 +24,8 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const ExpenseListPage(),
-        // '/searchExpense': (context) => SearchExpensePage(),
-        // '/myProfile': (context) => MyProfilePage(),
-        // '/expenses': (context) => ExpensesPage(),
-        // '/repeatedExpense': (context) => RepeatedExpensePage(),
+        '/searchExpense': (context) => const SearchExpensePage(),
+        '/myProfile': (context) => const UserProfile(),
       },
     );
   }
