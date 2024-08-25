@@ -40,7 +40,7 @@ dependencies:
   intl: ^0.19.0
   flutter_secure_storage: ^9.2.2
   tflite_flutter: ^0.10.4
-  rive: ^0.13.12
+  rive: ^0.13.4
   http: ^1.2.2
 
 dev_dependencies:

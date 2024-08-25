@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../../models/category.dart';
 import '../../models/expense.dart';
 
 class AddExpenseModal extends StatefulWidget {
@@ -21,7 +22,10 @@ class _AddExpenseModalState extends State<AddExpenseModal> {
   bool _repeatable = false;
   DateTime _selectedDate = DateTime.now();
   final TextEditingController _labelController = TextEditingController();
+  final TextEditingController _newCategoryController = TextEditingController();
   final String _userId = '66bc64aa9eef5c744dfe0c93'; // Your user ID
+
+  bool _isNewCategory = false;
 
   @override
   void initState() {
@@ -88,12 +92,48 @@ class _AddExpenseModalState extends State<AddExpenseModal> {
     }
   }
 
-  void _addCategory() {
-    setState(() {
-      _categories.add({'id': 'new_id', 'name': 'New Category'});
-      _selectedCategoryId = 'new_id';
-      _selectedCategoryName = 'New Category';
-    });
+  void _addCategory() async {
+    final category = Category(
+      categoryName: _newCategoryController.text,
+      id: '',
+    );
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://localhost:8000/add/newCategory'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic>{
+          'categoryName': category.categoryName,
+          'userId': _userId,
+        }),
+      );
+      if (response.statusCode == 201) {
+        final responseData = jsonDecode(response.body);
+        final newCategory = Category.fromJson(responseData['category']);
+
+        setState(() {
+          _categories.add({
+            'id': newCategory.id,
+            'name': newCategory.categoryName,
+          });
+          _selectedCategoryId = newCategory.id;
+          _selectedCategoryName = newCategory.categoryName;
+          _newCategoryController.clear();
+          _isNewCategory = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Category added successfully')),
+        );
+      } else {
+        throw Exception('Failed to add category');
+      }
+    } catch (error) {
+      print("Error occurred while adding category");
+      print(error);
+    }
   }
 
   Future<void> _saveExpense() async {
@@ -141,8 +181,29 @@ class _AddExpenseModalState extends State<AddExpenseModal> {
     }
   }
 
+  void _onCategoryChanged(String? value) {
+    setState(() {
+      _selectedCategoryId = value!;
+      _selectedCategoryName = _categories.firstWhere(
+          (category) => category['id'] == value)['name']!;
+      _isNewCategory = false;
+      _newCategoryController.clear();
+    });
+  }
+
+  void _onNewCategoryTextChanged(String value) {
+    setState(() {
+      _isNewCategory = value.isNotEmpty;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final bool isAddCategoryButtonEnabled = _isNewCategory;
+    final bool isSaveButtonEnabled = _selectedCategoryId.isNotEmpty &&
+        _labelController.text.isNotEmpty &&
+        _amount > 0;
+
     return Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -196,13 +257,20 @@ class _AddExpenseModalState extends State<AddExpenseModal> {
                         style: const TextStyle(color: Colors.white)),
                   );
                 }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedCategoryId = value!;
-                    _selectedCategoryName = _categories.firstWhere(
-                        (category) => category['id'] == value)['name']!;
-                  });
-                },
+                onChanged: _onCategoryChanged,
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _newCategoryController,
+                decoration: const InputDecoration(
+                  labelText: 'New Category',
+                  labelStyle: TextStyle(color: Colors.white),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white),
+                  ),
+                ),
+                style: const TextStyle(color: Colors.white),
+                onChanged: _onNewCategoryTextChanged,
               ),
               const SizedBox(height: 12),
               TextField(
@@ -218,7 +286,7 @@ class _AddExpenseModalState extends State<AddExpenseModal> {
               ),
               const SizedBox(height: 12),
               TextField(
-                decoration: const InputDecoration(
+                                decoration: const InputDecoration(
                   labelText: 'Amount',
                   labelStyle: TextStyle(color: Colors.white),
                   border: OutlineInputBorder(
@@ -227,7 +295,9 @@ class _AddExpenseModalState extends State<AddExpenseModal> {
                 ),
                 style: const TextStyle(color: Colors.white),
                 keyboardType: TextInputType.number,
-                onChanged: (value) => _amount = double.tryParse(value) ?? 0.0,
+                onChanged: (value) => setState(() {
+                  _amount = double.tryParse(value) ?? 0.0;
+                }),
               ),
               const SizedBox(height: 12),
               Row(
@@ -247,7 +317,7 @@ class _AddExpenseModalState extends State<AddExpenseModal> {
                   ),
                   const Spacer(),
                   ElevatedButton(
-                    onPressed: _addCategory,
+                    onPressed: isAddCategoryButtonEnabled ? _addCategory : null,
                     child: const Text('Add Category'),
                   ),
                 ],
@@ -268,7 +338,7 @@ class _AddExpenseModalState extends State<AddExpenseModal> {
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: _saveExpense,
+                onPressed: isSaveButtonEnabled ? _saveExpense : null,
                 child: const Text('Save'),
               ),
             ],
@@ -278,3 +348,5 @@ class _AddExpenseModalState extends State<AddExpenseModal> {
     );
   }
 }
+
+                 
