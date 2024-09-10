@@ -22,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // Retrieve the token from shared preferences
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
-    
+
     // Navigate based on whether the token exists
     SchedulerBinding.instance.addPostFrameCallback((_) {
       Future.delayed(const Duration(seconds: 3), () {
@@ -52,8 +52,8 @@ class _SplashScreenState extends State<SplashScreen> {
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFF1E1F24), // Start color (example, adjust to match your image)
-              Color(0xFF3A3F44), // End color (example, adjust to match your image)
+              Colors.deepPurple,
+              Colors.black,
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -61,7 +61,7 @@ class _SplashScreenState extends State<SplashScreen> {
         ),
         child: Center(
           child: Image.asset(
-            'assets/images/skill_link-logo1.png',
+            'assets/images/logo.png',
             // Adjust the logo size if needed
             width: 150,
             height: 150,

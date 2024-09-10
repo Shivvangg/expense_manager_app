@@ -38,6 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(responseData['message'])),
       );
+      Navigator.pushNamed(context, '/expense-screen');
       
     } else {
       final errorData = jsonDecode(response.body);
