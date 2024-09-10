@@ -26,6 +26,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => const ExpenseListPage(),
         '/searchExpense': (context) => const SearchExpensePage(),
         '/myProfile': (context) => const UserProfile(),
+        // '/mySplite': (context) => const MySplitPage(),
       },
     );
   }
