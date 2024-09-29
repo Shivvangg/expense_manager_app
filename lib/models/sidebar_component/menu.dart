@@ -27,7 +27,7 @@ List<Menu> sidebarMenus = [
     route: '/',
   ),
   Menu(
-    title: "Repeated Expenses",
+    title: "My Splits",
     rive: RiveModel(
         src: "assets/RiveAssets/icons.riv",
         artboard: "LIKE/STAR",

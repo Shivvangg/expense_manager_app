@@ -4,8 +4,8 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import '../../models/category.dart';
-import '../../models/expense.dart';
+import '../models/category.dart';
+import '../models/expense.dart';
 
 class AddExpenseModal extends StatefulWidget {
   const AddExpenseModal({super.key});
@@ -348,5 +348,3 @@ class _AddExpenseModalState extends State<AddExpenseModal> {
     );
   }
 }
-
-                 

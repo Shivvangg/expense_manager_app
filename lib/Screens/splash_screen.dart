@@ -25,7 +25,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
     // Navigate based on whether the token exists
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      Future.delayed(const Duration(seconds: 3), () {
+      Future.delayed(const Duration(seconds: 2), () {
         if (token != null) {
           // Navigate to the main screen and remove all previous routes
           Navigator.pushNamedAndRemoveUntil(

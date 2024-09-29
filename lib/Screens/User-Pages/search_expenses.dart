@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 
 import '../../SidebarMenu/side_bar.dart';
 import '../../models/expense.dart';
-import 'add_expense_modal.dart';
+import '../../modals/add_expense_modal.dart';
 
 class SearchExpensePage extends StatefulWidget {
   const SearchExpensePage({super.key});

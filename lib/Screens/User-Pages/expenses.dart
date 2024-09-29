@@ -1,12 +1,13 @@
-// ignore_for_file: avoid_print, prefer_final_fields, library_private_types_in_public_api
+// ignore_for_file: avoid_print, prefer_final_fields, library_private_types_in_public_api, unused_element
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../SidebarMenu/side_bar.dart';
 import '../../models/expense.dart';
-import 'add_expense_modal.dart';
+import '../../modals/add_expense_modal.dart';
 
 class ExpenseListPage extends StatefulWidget {
   const ExpenseListPage({super.key});
@@ -19,13 +20,28 @@ class _ExpenseListPageState extends State<ExpenseListPage> {
   List<Expense> _expenses = [];
   Map<String, String> _categoryNames = {}; // Map to cache category names
   bool _isLoading = true;
-  final String _userId = '66bc64aa9eef5c744dfe0c93'; // Your user ID
+  String _userId = '66bc64aa9eef5c744dfe0c93'; // Your user ID
 
   @override
   void initState() {
     super.initState();
     _fetchExpenses();
   }
+
+  Future<void> _getUserIdAndFetchExpenses() async {
+  final prefs = await SharedPreferences.getInstance();
+  final userId = prefs.getString('user_id');
+
+  if (userId != null) {
+    setState(() {
+      _userId = userId;
+    });
+    _fetchExpenses();
+  } else {
+    // Handle user ID not being set (perhaps navigate to login)
+    print('User ID not found');
+  }
+}
 
   Future<void> _fetchExpenses() async {
     setState(() {
