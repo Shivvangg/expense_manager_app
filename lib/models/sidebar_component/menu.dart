@@ -32,7 +32,7 @@ List<Menu> sidebarMenus = [
         src: "assets/RiveAssets/icons.riv",
         artboard: "LIKE/STAR",
         stateMachineName: "STAR_Interactivity"),
-    route: '/suggested-certificates',
+    route: '/split-screen',
   ),
   Menu(
     title: "Search Expenses",

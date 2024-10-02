@@ -1,73 +1,81 @@
 class Splits {
   final String id;
-  final double amount;
-  final String payerId;
-  final String payerName; // Optional, if you want to display payer name
-  final List<UserShare> participants; // List of participants and their share
-  final DateTime date;
+  final String creatorId; // User who created the split
+  final double totalAmount; // Total amount of the split
+  final List<Participant> participants; // List of participants and their split info
+  final String? expenseId; // Expense linked to the split (optional)
+  final bool settled; // Whether the split is settled
+  final DateTime dateCreated;
 
   Splits({
     required this.id,
-    required this.amount,
-    required this.payerId,
-    required this.payerName,
+    required this.creatorId,
+    required this.totalAmount,
     required this.participants,
-    required this.date,
+    this.expenseId,
+    required this.settled,
+    required this.dateCreated,
   });
 
-  // Function to parse JSON response and create a Split object
+  // Factory method to parse JSON into Split object
   factory Splits.fromJson(Map<String, dynamic> json) {
     return Splits(
       id: json['_id'],
-      amount: json['amount'].toDouble(),
-      payerId: json['payerId'],
-      payerName: json['payerName'], // Optional, if provided by backend
+      creatorId: json['creatorId'],
+      totalAmount: json['totalAmount'].toDouble(),
       participants: (json['participants'] as List)
-          .map((participant) => UserShare.fromJson(participant))
+          .map((participant) => Participant.fromJson(participant))
           .toList(),
-      date: DateTime.parse(json['date']),
+      expenseId: json['expense'],
+      settled: json['settled'],
+      dateCreated: DateTime.parse(json['dateCreated']),
     );
   }
 
-  // Function to convert Split object to JSON format
+  // Method to convert Split object to JSON format
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'amount': amount,
-      'payerId': payerId,
-      'payerName': payerName, // Optional
-      'participants': participants.map((participant) => participant.toJson()).toList(),
-      'date': date.toIso8601String(),
+      'creatorId': creatorId,
+      'totalAmount': totalAmount,
+      'participants': participants.map((p) => p.toJson()).toList(),
+      'expense': expenseId,
+      'settled': settled,
+      'dateCreated': dateCreated.toIso8601String(),
     };
   }
 }
 
-class UserShare {
-  final String userId;
-  final String userName;
-  final double amountPaid;
+class Participant {
+  final String userId; // User involved in the split
+  final String userName; // Name of the user (optional for display purposes)
+  final double splitAmount; // The amount this user owes or paid
+  final bool paid; // If the user has paid their part
 
-  UserShare({
+  Participant({
     required this.userId,
     required this.userName,
-    required this.amountPaid,
+    required this.splitAmount,
+    required this.paid,
   });
 
-  // Function to parse JSON response and create a UserShare object
-  factory UserShare.fromJson(Map<String, dynamic> json) {
-    return UserShare(
-      userId: json['userId'],
-      userName: json['userName'],
-      amountPaid: json['amountPaid'].toDouble(),
+  // Factory method to parse JSON into Participant object
+  factory Participant.fromJson(Map<String, dynamic> json) {
+    return Participant(
+      userId: json['user'],
+      userName: json['userName'], // Optional field for display purposes
+      splitAmount: json['splitAmount'].toDouble(),
+      paid: json['paid'],
     );
   }
 
-  // Function to convert UserShare object to JSON format
+  // Method to convert Participant object to JSON format
   Map<String, dynamic> toJson() {
     return {
-      'userId': userId,
-      'userName': userName,
-      'amountPaid': amountPaid,
+      'user': userId,
+      'userName': userName, // Optional
+      'splitAmount': splitAmount,
+      'paid': paid,
     };
   }
 }

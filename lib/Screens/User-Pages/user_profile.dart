@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:expense_manager/SidebarMenu/side_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../../Graphs/expenses_bar_chart.dart';
@@ -84,7 +85,8 @@ class _UserProfileState extends State<UserProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[900], // Dark background for better contrast
+      backgroundColor: Colors.grey[900], 
+      drawer: const SideBar(),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),

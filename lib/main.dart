@@ -1,6 +1,7 @@
 // ignore_for_file: unused_import
 
 import 'package:expense_manager/Screens/Auth/login_screen.dart';
+import 'package:expense_manager/Screens/User-Pages/split_money.dart';
 import 'package:flutter/material.dart';
 
 import 'Screens/User-Pages/expenses.dart';
@@ -33,6 +34,7 @@ class MyApp extends StatelessWidget {
         '/myProfile': (context) => const UserProfile(),
         '/login': (context) => const LoginScreen(),
         '/expense-screen': (context) => const ExpenseListPage(),
+        '/split-screen' : (context) => const SplitMoney(),
         // '/mySplite': (context) => const MySplitPage(),
       },
     );
