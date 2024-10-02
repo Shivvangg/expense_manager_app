@@ -18,32 +18,34 @@ class ExpenseListPage extends StatefulWidget {
 
 class _ExpenseListPageState extends State<ExpenseListPage> {
   List<Expense> _expenses = [];
-  Map<String, String> _categoryNames = {}; // Map to cache category names
+  Map<String, String> _categoryNames = {}; 
   bool _isLoading = true;
-  String _userId = '66bc64aa9eef5c744dfe0c93'; // Your user ID
+  String? _userId;
 
   @override
   void initState() {
     super.initState();
-    _fetchExpenses();
+    _getUserIdAndFetchExpenses();
   }
 
   Future<void> _getUserIdAndFetchExpenses() async {
-  final prefs = await SharedPreferences.getInstance();
-  final userId = prefs.getString('user_id');
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('user_id');
 
-  if (userId != null) {
-    setState(() {
-      _userId = userId;
-    });
-    _fetchExpenses();
-  } else {
-    // Handle user ID not being set (perhaps navigate to login)
-    print('User ID not found');
+    if (userId != null) {
+      setState(() {
+        _userId = userId;
+      });
+      _fetchExpenses();
+    } else {
+      print('User ID not found');
+      // Optionally handle navigation to login
+    }
   }
-}
 
   Future<void> _fetchExpenses() async {
+    if (_userId == null) return;
+
     setState(() {
       _isLoading = true;
     });
@@ -54,7 +56,6 @@ class _ExpenseListPageState extends State<ExpenseListPage> {
         final data = jsonDecode(response.body);
         final List<dynamic> expenseData = data['user']['expenses'];
 
-        // Fetch category names
         for (var expenseJson in expenseData) {
           final expense = Expense.fromJson(expenseJson);
           if (!_categoryNames.containsKey(expense.category)) {
