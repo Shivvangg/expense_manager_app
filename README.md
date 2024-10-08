@@ -1,4 +1,5 @@
 Expense Manager Application
+
 Overview
 The Expense Manager Application is a dynamic, Flutter-based Android application designed to help users efficiently manage their expenses. The app provides a user-friendly, responsive interface, allowing users to track their spending, sort and filter expenses, and view insightful graphs that summarize their financial activities. With robust user authentication and intuitive design, this app is ideal for individuals looking to streamline their expense management.
 
