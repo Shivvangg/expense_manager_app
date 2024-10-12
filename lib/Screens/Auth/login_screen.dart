@@ -20,7 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final email = _emailController.text;
     final password = _passwordController.text;
 
-    final url = Uri.parse('http://localhost:8000/login/user');
+    final url = Uri.parse('http://192.168.1.8:8000/login/user');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},

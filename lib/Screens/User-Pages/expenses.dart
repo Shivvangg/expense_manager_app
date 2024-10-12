@@ -51,7 +51,7 @@ class _ExpenseListPageState extends State<ExpenseListPage> {
     });
 
     try {
-      final response = await http.get(Uri.parse('http://localhost:8000/get/user/$_userId'));
+      final response = await http.get(Uri.parse('http://192.168.1.8:8000/get/user/$_userId'));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final List<dynamic> expenseData = data['user']['expenses'];
@@ -80,7 +80,7 @@ class _ExpenseListPageState extends State<ExpenseListPage> {
 
   Future<void> _fetchCategoryName(String categoryId) async {
     try {
-      final response = await http.get(Uri.parse('http://localhost:8000/get/category/$categoryId'));
+      final response = await http.get(Uri.parse('http://192.168.1.8:8000/get/category/$categoryId'));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final categoryName = data['category']['categoryName'];

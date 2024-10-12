@@ -1,12 +1,12 @@
-// ignore_for_file: prefer_final_fields, unused_element, unused_local_variable, unused_field, avoid_print
+// ignore_for_file: avoid_print
 
 import 'dart:convert';
-
 import 'package:expense_manager/SidebarMenu/side_bar.dart';
 import 'package:expense_manager/modals/add_split_modal.dart';
 import 'package:expense_manager/models/split.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplitMoney extends StatefulWidget {
@@ -42,6 +42,33 @@ class _SplitMoneyState extends State<SplitMoney> {
     }
   }
 
+  Future<void> _fetchSplits() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final response =
+          await http.get(Uri.parse('http://192.168.1.8:8000/splits/$_userId'));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        // Fetching data from the correct key 'splits'
+        final List<dynamic> splitData = data['splits'];
+        setState(() {
+          _splits = splitData.map((json) => Splits.fromJson(json)).toList();
+          _isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load splits');
+      }
+    } catch (error) {
+      setState(() {
+        _isLoading = false;
+      });
+      print(error);
+    }
+  }
+
   void _openAddSplitModal() async {
     final split = await showDialog<Splits>(
       context: context,
@@ -57,39 +84,6 @@ class _SplitMoneyState extends State<SplitMoney> {
     setState(() {
       _splits.add(split);
     });
-  }
-
-  Future<void> _fetchSplits() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final response =
-          await http.get(Uri.parse('http://localhost:8000/splits/$_userId'));
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final List<dynamic> splitData = data['splits'];
-        print(splitData);
-
-        // Fetch category names
-        for (var expenseJson in splitData) {
-          final split = Splits.fromJson(expenseJson);
-        }
-
-        setState(() {
-          _splits = splitData.map((json) => Splits.fromJson(json)).toList();
-          _isLoading = false;
-        });
-      } else {
-        throw Exception('Failed to load expenses');
-      }
-    } catch (error) {
-      setState(() {
-        _isLoading = false;
-      });
-      print(error);
-    }
   }
 
   @override
@@ -116,42 +110,105 @@ class _SplitMoneyState extends State<SplitMoney> {
               child: ListView.builder(
                 itemCount: _splits.length,
                 itemBuilder: (context, index) {
-                  final spplit = _splits[index];
-                  // final categoryName =
-                  //     _categoryNames[expense.category] ?? 'Unknown';
+                  final split = _splits[index];
+
+                  final totalAmount = split.totalAmount;
+                  final creatorId = split.creatorId;
+                  final participants = split.participants;
+                  final dateCreated = DateTime.parse(split.dateCreated);
 
                   return Dismissible(
-                    key: Key(spplit.id + spplit.dateCreated.toString()),
+                    key: Key(split.id + split.dateCreated.toString()),
                     onDismissed: (direction) {
-                      // _deleteExpense(index);
+                      // Handle delete functionality here
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('split deleted'),
+                          content: Text('Split deleted'),
                         ),
                       );
                     },
                     background: Container(color: Colors.red),
-                    child: Card(
-                      color: Colors.white.withOpacity(0.1),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width - 5,
                       margin: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                      padding: const EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(
+                            0.15), // Adjust opacity for better blending
+                        borderRadius:
+                            BorderRadius.circular(12.0), // Rounded corners
+                        boxShadow: [
+                          BoxShadow(
+                            color:
+                                Colors.black.withOpacity(0.2), // Shadow color
+                            spreadRadius: 2,
+                            blurRadius: 6,
+                            offset: const Offset(
+                                0, 2), // Changes the position of the shadow
+                          ),
+                        ],
+                        border: Border.all(
+                            color: Colors.grey.withOpacity(0.5),
+                            width: 1), // Adjust border color and width
                       ),
-                      elevation: 5,
-                      child: ListTile(
-                        title: Text(
-                          spplit.creatorId,
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                        subtitle: const Text(
-                          'testing',
-                          style:  TextStyle(color: Colors.white70),
-                        ),
-                        trailing: Text(
-                          '${spplit.dateCreated.toLocal()}'.split(' ')[0],
-                          style: const TextStyle(color: Colors.white),
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Display creator ID and total amount
+                          Text(
+                            'Creator: $creatorId',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            'Total Amount: \$${totalAmount.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              color: Colors
+                                  .yellowAccent, // Changed color for better contrast
+                              fontSize: 16,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+
+                          // Display participants and their split amounts
+                          const Text(
+                            'Participants:',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: participants.map<Widget>((participant) {
+                              return Text(
+                                '${participant.user.username} - \$${participant.splitAmount} (${participant.paid ? "Paid" : "Not Paid"})',
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 14,
+                                ),
+                              );
+                            }).toList(),
+                          ),
+
+                          const SizedBox(height: 10),
+
+                          // Display formatted date created
+                          Text(
+                            'Date Created: ${DateFormat('yyyy-MM-dd').format(dateCreated)}',
+                            style: const TextStyle(
+                              color: Colors.white54,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   );

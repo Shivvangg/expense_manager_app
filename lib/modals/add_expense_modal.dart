@@ -1,9 +1,10 @@
-// ignore_for_file: prefer_final_fields, library_private_types_in_public_api, unused_field, use_build_context_synchronously, avoid_print
+// ignore_for_file: prefer_final_fields, library_private_types_in_public_api, unused_field, use_build_context_synchronously, avoid_print, unused_local_variable
 
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/category.dart';
 import '../models/expense.dart';
 
@@ -23,9 +24,9 @@ class _AddExpenseModalState extends State<AddExpenseModal> {
   DateTime _selectedDate = DateTime.now();
   final TextEditingController _labelController = TextEditingController();
   final TextEditingController _newCategoryController = TextEditingController();
-  final String _userId = '66bc64aa9eef5c744dfe0c93'; // Your user ID
 
   bool _isNewCategory = false;
+  String? _userId;
 
   @override
   void initState() {
@@ -35,6 +36,9 @@ class _AddExpenseModalState extends State<AddExpenseModal> {
 
   Future<void> _fetchCategories() async {
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getString('user_id');
+      _userId = userId;
       final response =
           await http.get(Uri.parse('http://localhost:8000/get/user/$_userId'));
       if (response.statusCode == 200) {
@@ -184,8 +188,8 @@ class _AddExpenseModalState extends State<AddExpenseModal> {
   void _onCategoryChanged(String? value) {
     setState(() {
       _selectedCategoryId = value!;
-      _selectedCategoryName = _categories.firstWhere(
-          (category) => category['id'] == value)['name']!;
+      _selectedCategoryName = _categories
+          .firstWhere((category) => category['id'] == value)['name']!;
       _isNewCategory = false;
       _newCategoryController.clear();
     });
@@ -286,7 +290,7 @@ class _AddExpenseModalState extends State<AddExpenseModal> {
               ),
               const SizedBox(height: 12),
               TextField(
-                                decoration: const InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Amount',
                   labelStyle: TextStyle(color: Colors.white),
                   border: OutlineInputBorder(

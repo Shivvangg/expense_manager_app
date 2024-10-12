@@ -1,81 +1,97 @@
+class SplitResponse {
+  final String message;
+  final List<Splits> splits;
+
+  SplitResponse({required this.message, required this.splits});
+
+  factory SplitResponse.fromJson(Map<String, dynamic> json) {
+    return SplitResponse(
+      message: json['message'],
+      splits: List<Splits>.from(json['splits'].map((x) => Splits.fromJson(x))),
+    );
+  }
+}
+
 class Splits {
   final String id;
-  final String creatorId; // User who created the split
-  final double totalAmount; // Total amount of the split
-  final List<Participant> participants; // List of participants and their split info
-  final String? expenseId; // Expense linked to the split (optional)
-  final bool settled; // Whether the split is settled
-  final DateTime dateCreated;
+  final String creatorId;
+  final int totalAmount;
+  final List<Participant> participants;
+  final bool settled;
+  final String dateCreated;
 
   Splits({
     required this.id,
     required this.creatorId,
     required this.totalAmount,
     required this.participants,
-    this.expenseId,
     required this.settled,
     required this.dateCreated,
   });
 
-  // Factory method to parse JSON into Split object
   factory Splits.fromJson(Map<String, dynamic> json) {
     return Splits(
       id: json['_id'],
       creatorId: json['creatorId'],
-      totalAmount: json['totalAmount'].toDouble(),
-      participants: (json['participants'] as List)
-          .map((participant) => Participant.fromJson(participant))
-          .toList(),
-      expenseId: json['expense'],
+      totalAmount: json['totalAmount'],
+      participants: List<Participant>.from(json['participants'].map((x) => Participant.fromJson(x))),
       settled: json['settled'],
-      dateCreated: DateTime.parse(json['dateCreated']),
+      dateCreated: json['dateCreated'],
     );
-  }
-
-  // Method to convert Split object to JSON format
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'creatorId': creatorId,
-      'totalAmount': totalAmount,
-      'participants': participants.map((p) => p.toJson()).toList(),
-      'expense': expenseId,
-      'settled': settled,
-      'dateCreated': dateCreated.toIso8601String(),
-    };
   }
 }
 
 class Participant {
-  final String userId; // User involved in the split
-  final String userName; // Name of the user (optional for display purposes)
-  final double splitAmount; // The amount this user owes or paid
-  final bool paid; // If the user has paid their part
+  final User user;
+  final int splitAmount;
+  final bool paid;
+  final String id;
 
   Participant({
-    required this.userId,
-    required this.userName,
+    required this.user,
     required this.splitAmount,
     required this.paid,
+    required this.id,
   });
 
-  // Factory method to parse JSON into Participant object
   factory Participant.fromJson(Map<String, dynamic> json) {
     return Participant(
-      userId: json['user'],
-      userName: json['userName'], // Optional field for display purposes
-      splitAmount: json['splitAmount'].toDouble(),
+      user: User.fromJson(json['user']),
+      splitAmount: json['splitAmount'],
       paid: json['paid'],
+      id: json['_id'],
     );
   }
+}
 
-  // Method to convert Participant object to JSON format
-  Map<String, dynamic> toJson() {
-    return {
-      'user': userId,
-      'userName': userName, // Optional
-      'splitAmount': splitAmount,
-      'paid': paid,
-    };
+class User {
+  final String id;
+  final String email;
+  final String username;
+  final String phone;
+  final String password;
+  final List<String> categories;
+  final List<String> expenses;
+
+  User({
+    required this.id,
+    required this.email,
+    required this.username,
+    required this.phone,
+    required this.password,
+    required this.categories,
+    required this.expenses,
+  });
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      id: json['_id'],
+      email: json['email'],
+      username: json['username'],
+      phone: json['phone'],
+      password: json['password'],
+      categories: List<String>.from(json['categories']),
+      expenses: List<String>.from(json['expenses']),
+    );
   }
 }

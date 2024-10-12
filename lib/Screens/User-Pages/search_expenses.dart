@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print, unused_element
+// ignore_for_file: avoid_print, unused_element, library_private_types_in_public_api, prefer_final_fields
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -39,7 +39,7 @@ class _SearchExpensePageState extends State<SearchExpensePage> {
 
     try {
       final userResponse =
-          await http.get(Uri.parse('http://localhost:8000/get/user/$_userId'));
+          await http.get(Uri.parse('http://192.168.1.8/get/user/$_userId'));
       if (userResponse.statusCode == 200) {
         final userData = jsonDecode(userResponse.body);
         final List<dynamic> categoriesData = userData['user']['categories'];
@@ -53,7 +53,7 @@ class _SearchExpensePageState extends State<SearchExpensePage> {
 
         // Fetch all expenses
         final expensesResponse = await http
-            .get(Uri.parse('http://localhost:8000/get/user/$_userId'));
+            .get(Uri.parse('http://192.168.1.8:8000/get/user/$_userId'));
         if (expensesResponse.statusCode == 200) {
           final expensesData = jsonDecode(expensesResponse.body);
           final List<dynamic> expensesList = expensesData['user']['expenses'];

@@ -1,4 +1,3 @@
-// Required imports
 // ignore_for_file: use_build_context_synchronously, avoid_print, unnecessary_to_list_in_spreads, prefer_final_fields, library_private_types_in_public_api, unused_field
 
 import 'dart:convert';
@@ -19,7 +18,8 @@ class _AddSplitModalState extends State<AddSplitModal> {
   String _paidByUserId = '';
   String _paidByUserName = 'Select User';
   List<Map<String, dynamic>> _participants = [];
-  List<Map<String, dynamic>> _contacts = [];
+  List<Contact> _contacts = [];
+  bool _isLoadingContacts = true;
 
   final TextEditingController _amountController = TextEditingController();
   final String _userId = '66bc64aa9eef5c744dfe0c93'; // Current user ID
@@ -35,18 +35,16 @@ class _AddSplitModalState extends State<AddSplitModal> {
     if (await Permission.contacts.request().isGranted) {
       Iterable<Contact> contacts = await ContactsService.getContacts();
       setState(() {
-        _contacts = contacts.map((contact) {
-          return {
-            'name': contact.displayName ?? '',
-            'id': contact.identifier ?? '',
-            'phones': contact.phones?.map((item) => item.value).toList() ?? []
-          };
-        }).toList();
+        _contacts = contacts.toList();
+        _isLoadingContacts = false;
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Permission to access contacts denied')),
       );
+      setState(() {
+        _isLoadingContacts = false;
+      });
     }
   }
 
@@ -61,7 +59,7 @@ class _AddSplitModalState extends State<AddSplitModal> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:8000/add/newSplit'),
+        Uri.parse('http://192.168.1.8:8000/add/newSplit'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -82,7 +80,7 @@ class _AddSplitModalState extends State<AddSplitModal> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Split added successfully')),
         );
-        Navigator.of(context).pop();  // Close modal
+        Navigator.of(context).pop(); // Close modal
       } else {
         throw Exception('Failed to add split');
       }
@@ -94,23 +92,29 @@ class _AddSplitModalState extends State<AddSplitModal> {
     }
   }
 
-  // Function to handle user selection for "Who paid"
-  void _onPaidByUserChanged(String? userId, String? userName) {
-    setState(() {
-      _paidByUserId = userId!;
-      _paidByUserName = userName!;
-    });
-  }
-
   // Function to handle adding participants from contacts
-  void _onAddParticipant(Map<String, dynamic> contact) {
+  void _onAddParticipant(Contact contact) {
     setState(() {
       _participants.add({
-        'id': contact['id'],
-        'name': contact['name'],
+        'id': contact.identifier ?? '',
+        'name': contact.displayName ?? '',
         'amount': _totalAmount / (_participants.length + 1)
       });
     });
+  }
+
+  // Open contact selection modal
+  void _openContactSelectionModal() async {
+    Contact? contact = await showDialog<Contact>(
+      context: context,
+      builder: (BuildContext context) => ContactSelectionModal(
+        contacts: _contacts,
+      ),
+    );
+
+    if (contact != null) {
+      _onAddParticipant(contact);
+    }
   }
 
   @override
@@ -171,7 +175,7 @@ class _AddSplitModalState extends State<AddSplitModal> {
               ),
               const SizedBox(height: 12),
 
-              // Who Paid Dropdown
+              // Who Paid Dropdown (Currently just placeholder, can be expanded with similar contact fetching)
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(
                   labelText: 'Who Paid?',
@@ -184,36 +188,24 @@ class _AddSplitModalState extends State<AddSplitModal> {
                 value: _paidByUserId.isNotEmpty ? _paidByUserId : null,
                 items: _contacts.map((contact) {
                   return DropdownMenuItem<String>(
-                    value: contact['id'],
-                    child: Text(contact['name']!,
-                        style: const TextStyle(color: Colors.white)),
+                    value: contact.identifier,
+                    child: Text(contact.displayName ?? '', style: const TextStyle(color: Colors.white)),
                   );
                 }).toList(),
                 onChanged: (value) {
-                  final selectedContact = _contacts.firstWhere((contact) => contact['id'] == value);
-                  _onPaidByUserChanged(selectedContact['id'], selectedContact['name']);
+                  final selectedContact = _contacts.firstWhere((contact) => contact.identifier == value);
+                  setState(() {
+                    _paidByUserId = selectedContact.identifier ?? '';
+                    _paidByUserName = selectedContact.displayName ?? '';
+                  });
                 },
               ),
               const SizedBox(height: 12),
 
-              // Add Participants from Contacts
-              Column(
-                children: [
-                  const Text(
-                    'Add Participants:',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  const SizedBox(height: 12),
-                  ..._contacts.map((contact) {
-                    return ListTile(
-                      title: Text(contact['name']!, style: const TextStyle(color: Colors.white)),
-                      trailing: ElevatedButton(
-                        onPressed: () => _onAddParticipant(contact),
-                        child: const Text('Add'),
-                      ),
-                    );
-                  }).toList(),
-                ],
+              // Add Participants Button
+              ElevatedButton(
+                onPressed: _openContactSelectionModal,
+                child: const Text('Add Participant from Contacts'),
               ),
 
               const SizedBox(height: 16),
@@ -227,6 +219,31 @@ class _AddSplitModalState extends State<AddSplitModal> {
           ),
         ),
       ),
+    );
+  }
+}
+
+// Modal to select contacts
+class ContactSelectionModal extends StatelessWidget {
+  final List<Contact> contacts;
+
+  const ContactSelectionModal({super.key, required this.contacts});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: contacts.isEmpty
+          ? const Center(child: Text('No contacts found'))
+          : ListView.builder(
+              itemCount: contacts.length,
+              itemBuilder: (context, index) {
+                final contact = contacts[index];
+                return ListTile(
+                  title: Text(contact.displayName ?? ''),
+                  onTap: () => Navigator.pop(context, contact),
+                );
+              },
+            ),
     );
   }
 }

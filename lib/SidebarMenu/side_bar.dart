@@ -1,11 +1,9 @@
 // ignore_for_file: no_leading_underscores_for_local_identifiers, use_build_context_synchronously, unnecessary_to_list_in_spreads, prefer_const_declarations, unused_import
 
-//flutter packages
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert'; 
 
-//project files
 import '../../../utils/rive_utils.dart';
 import '../models/sidebar_component/menu.dart';
 import 'info_card.dart';
@@ -21,14 +19,13 @@ class SideBar extends StatefulWidget {
 class _SideBarState extends State<SideBar> {
   late Future<String> _nameFuture;
   late Future<String> _emailFuture;
-  Menu? selectedSideMenu; // Change to nullable Menu
+  Menu? selectedSideMenu; 
 
   @override
   void initState() {
     super.initState();
     _nameFuture = getName();
     _emailFuture = getEmail();
-    // Initialize selectedSideMenu based on the current route
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
         selectedSideMenu = sidebarMenus.firstWhere(
@@ -40,17 +37,11 @@ class _SideBarState extends State<SideBar> {
   }
 
   Future<String> getName() async {
-    // final companyProvider = Provider.of<CompanyProvider>(context, listen: false);
-    // await companyProvider.loadCompanyData();
-    // final companyName = companyProvider.companyData?.companyName ?? 'Shivang Pande';
     final companyName = 'Shivang Pande';
     return companyName;
   }
 
   Future<String> getEmail() async {
-    // final companyProvider = Provider.of<CompanyProvider>(context, listen: false);
-    // await companyProvider.loadCompanyData();
-    // final companyEmail = companyProvider.companyData?.email ?? 'pandeshivang2308@gmail.com';
     final companyEmail = 'pandeshivang2308@gmail.com';
     return companyEmail;
   }

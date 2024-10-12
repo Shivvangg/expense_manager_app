@@ -21,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _checkToken() async {
     // Retrieve the token from shared preferences
     final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token');
+    final token = prefs.getString('user_id');
 
     // Navigate based on whether the token exists
     SchedulerBinding.instance.addPostFrameCallback((_) {
