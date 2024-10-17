@@ -1,9 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert'; // For jsonEncode and jsonDecode
+import '../../api_service.dart';
 
 class SigninScreen extends StatefulWidget {
   const SigninScreen({super.key});
@@ -14,7 +12,6 @@ class SigninScreen extends StatefulWidget {
 
 class _SigninScreenState extends State<SigninScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -28,38 +25,25 @@ class _SigninScreenState extends State<SigninScreen> {
         isLoading = true;
       });
 
-      final url = Uri.parse('http://localhost:8000/create/user');
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': emailController.text,
-          'username': nameController.text,
-          'phone': numberController.text,
-          'password': passwordController.text,
-          'category': [], 
-          'expense': []
-        }),
+      final registrationResponse = await ApiService.registerUser(
+        nameController.text,
+        emailController.text,
+        numberController.text,
+        passwordController.text,
       );
 
       setState(() {
         isLoading = false;
       });
 
-      if (response.statusCode == 201) {
-        final responseData = jsonDecode(response.body);
-        final userId = responseData['user']['_id'];
-
-        await _storage.write(key: 'user_id', value: userId);
-
+      if (registrationResponse != null && registrationResponse['status']) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Registration successful!')),
+          SnackBar(content: Text(registrationResponse['message'])),
         );
         Navigator.pushNamed(context, '/login');
       } else {
-        final errorData = jsonDecode(response.body);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorData['message'])),
+          SnackBar(content: Text(registrationResponse?['message'] ?? 'Registration failed')),
         );
       }
     }

@@ -1,13 +1,10 @@
 // ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 
+import 'package:expense_manager/api_service.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
-
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -19,27 +16,15 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _login() async {
     final email = _emailController.text;
     final password = _passwordController.text;
-
-    final url = Uri.parse('http://192.168.1.8:8000/login/user');
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'password': password}),
-    );
-
-    if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
-      final userId = responseData['user']['_id'];
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('user_id', userId);
+    final loginResponse = await ApiService.loginUser(email, password);
+    if (loginResponse != null && loginResponse['status']) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(responseData['message'])),
+        SnackBar(content: Text(loginResponse['message'])),
       );
       Navigator.pushNamed(context, '/expense-screen');
     } else {
-      final errorData = jsonDecode(response.body);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorData['message'])),
+        SnackBar(content: Text(loginResponse?['message'] ?? 'Login failed')),
       );
     }
   }
