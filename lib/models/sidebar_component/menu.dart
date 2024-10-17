@@ -24,13 +24,13 @@ List<Menu> sidebarMenus = [
         src: "assets/RiveAssets/icons.riv",
         artboard: "LIKE/STAR",
         stateMachineName: "STAR_Interactivity"),
-    route: '/',
+    route: '/expense-screen',
   ),
   Menu(
     title: "My Splits",
     rive: RiveModel(
         src: "assets/RiveAssets/icons.riv",
-        artboard: "LIKE/STAR",
+        artboard: "BELL",
         stateMachineName: "STAR_Interactivity"),
     route: '/split-screen',
   ),

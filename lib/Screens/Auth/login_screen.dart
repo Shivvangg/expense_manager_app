@@ -30,16 +30,12 @@ class _LoginScreenState extends State<LoginScreen> {
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
       final userId = responseData['user']['_id'];
-
-      // Store the user ID in SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('user_id', userId);
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(responseData['message'])),
       );
       Navigator.pushNamed(context, '/expense-screen');
-      
     } else {
       final errorData = jsonDecode(response.body);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -81,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 20),
                 SizedBox(
-                  width: double.infinity / 2, // Half-width button
+                  width: double.infinity / 2, 
                   child: ElevatedButton(
                     onPressed: _login,
                     style: ElevatedButton.styleFrom(
@@ -90,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       shadowColor: Colors.blue[100],
                       elevation: 10, // Increase the shadow
                       padding: const EdgeInsets.symmetric(
-                        vertical: 15, // Increase the vertical padding for height
+                        vertical: 15,
                       ),
                     ),
                     child: const Text('Login'),
@@ -108,7 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: const Text(
                         'Sign Up',
                         style: TextStyle(
-                          color: Colors.blue, // Change this color as needed
+                          color: Colors.blue, 
                         ),
                       ),
                     ),

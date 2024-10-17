@@ -38,7 +38,6 @@ class _SplitMoneyState extends State<SplitMoney> {
       _fetchSplits();
     } else {
       print('User ID not found');
-      // Optionally handle navigation to login
     }
   }
 
@@ -52,7 +51,6 @@ class _SplitMoneyState extends State<SplitMoney> {
           await http.get(Uri.parse('http://192.168.1.8:8000/splits/$_userId'));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        // Fetching data from the correct key 'splits'
         final List<dynamic> splitData = data['splits'];
         setState(() {
           _splits = splitData.map((json) => Splits.fromJson(json)).toList();
@@ -120,7 +118,6 @@ class _SplitMoneyState extends State<SplitMoney> {
                   return Dismissible(
                     key: Key(split.id + split.dateCreated.toString()),
                     onDismissed: (direction) {
-                      // Handle delete functionality here
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Split deleted'),
@@ -135,27 +132,26 @@ class _SplitMoneyState extends State<SplitMoney> {
                       padding: const EdgeInsets.all(16.0),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(
-                            0.15), // Adjust opacity for better blending
+                            0.15), 
                         borderRadius:
-                            BorderRadius.circular(12.0), // Rounded corners
+                            BorderRadius.circular(12.0), 
                         boxShadow: [
                           BoxShadow(
                             color:
-                                Colors.black.withOpacity(0.2), // Shadow color
+                                Colors.black.withOpacity(0.2),
                             spreadRadius: 2,
                             blurRadius: 6,
                             offset: const Offset(
-                                0, 2), // Changes the position of the shadow
+                                0, 2), 
                           ),
                         ],
                         border: Border.all(
                             color: Colors.grey.withOpacity(0.5),
-                            width: 1), // Adjust border color and width
+                            width: 1),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Display creator ID and total amount
                           Text(
                             'Creator: $creatorId',
                             style: const TextStyle(
@@ -169,13 +165,12 @@ class _SplitMoneyState extends State<SplitMoney> {
                             'Total Amount: \$${totalAmount.toStringAsFixed(2)}',
                             style: const TextStyle(
                               color: Colors
-                                  .yellowAccent, // Changed color for better contrast
+                                  .yellowAccent, 
                               fontSize: 16,
                             ),
                           ),
                           const SizedBox(height: 10),
 
-                          // Display participants and their split amounts
                           const Text(
                             'Participants:',
                             style: TextStyle(
@@ -197,10 +192,7 @@ class _SplitMoneyState extends State<SplitMoney> {
                               );
                             }).toList(),
                           ),
-
                           const SizedBox(height: 10),
-
-                          // Display formatted date created
                           Text(
                             'Date Created: ${DateFormat('yyyy-MM-dd').format(dateCreated)}',
                             style: const TextStyle(

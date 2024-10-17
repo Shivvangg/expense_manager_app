@@ -1,11 +1,10 @@
-// ignore_for_file: avoid_print, prefer_final_fields, library_private_types_in_public_api, unused_element
+// ignore_for_file: library_private_types_in_public_api, prefer_final_fields, avoid_print
 
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../SidebarMenu/side_bar.dart';
+import '../../api_service.dart';
 import '../../models/expense.dart';
 import '../../modals/add_expense_modal.dart';
 
@@ -39,7 +38,6 @@ class _ExpenseListPageState extends State<ExpenseListPage> {
       _fetchExpenses();
     } else {
       print('User ID not found');
-      // Optionally handle navigation to login
     }
   }
 
@@ -51,20 +49,15 @@ class _ExpenseListPageState extends State<ExpenseListPage> {
     });
 
     try {
-      final response = await http.get(Uri.parse('http://192.168.1.8:8000/get/user/$_userId'));
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final List<dynamic> expenseData = data['user']['expenses'];
-
-        for (var expenseJson in expenseData) {
-          final expense = Expense.fromJson(expenseJson);
+      final expenses = await ApiService.fetchUserExpenses(_userId!);
+      if (expenses != null) {
+        for (var expense in expenses) {
           if (!_categoryNames.containsKey(expense.category)) {
             await _fetchCategoryName(expense.category);
           }
         }
-
         setState(() {
-          _expenses = expenseData.map((json) => Expense.fromJson(json)).toList();
+          _expenses = expenses;
           _isLoading = false;
         });
       } else {
@@ -80,16 +73,11 @@ class _ExpenseListPageState extends State<ExpenseListPage> {
 
   Future<void> _fetchCategoryName(String categoryId) async {
     try {
-      final response = await http.get(Uri.parse('http://192.168.1.8:8000/get/category/$categoryId'));
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final categoryName = data['category']['categoryName'];
-
+      final categoryName = await ApiService.fetchCategoryName(categoryId);
+      if (categoryName != null) {
         setState(() {
           _categoryNames[categoryId] = categoryName;
         });
-      } else {
-        throw Exception('Failed to load category');
       }
     } catch (error) {
       print(error);

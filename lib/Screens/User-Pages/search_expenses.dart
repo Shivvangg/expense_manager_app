@@ -1,16 +1,14 @@
-// ignore_for_file: avoid_print, unused_element, library_private_types_in_public_api, prefer_final_fields
+// ignore_for_file: prefer_final_fields, library_private_types_in_public_api, avoid_print, unused_element
 
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 import '../../SidebarMenu/side_bar.dart';
+import '../../api_service.dart';
 import '../../models/expense.dart';
 import '../../modals/add_expense_modal.dart';
 
 class SearchExpensePage extends StatefulWidget {
   const SearchExpensePage({super.key});
-
   @override
   _SearchExpensePageState createState() => _SearchExpensePageState();
 }
@@ -36,40 +34,25 @@ class _SearchExpensePageState extends State<SearchExpensePage> {
     setState(() {
       _isLoading = true;
     });
-
     try {
-      final userResponse =
-          await http.get(Uri.parse('http://192.168.1.8/get/user/$_userId'));
-      if (userResponse.statusCode == 200) {
-        final userData = jsonDecode(userResponse.body);
-        final List<dynamic> categoriesData = userData['user']['categories'];
-
-        // Fetch category names
+      final data = await ApiService.fetchCategoriesAndExpenses(_userId);
+      if (data != null) {
+        final List<dynamic> categoriesData = data['user']['categories'];
         for (var categoryJson in categoriesData) {
           final categoryId = categoryJson['_id'];
           final categoryName = categoryJson['categoryName'];
           _categoryNames[categoryId] = categoryName;
         }
-
-        // Fetch all expenses
-        final expensesResponse = await http
-            .get(Uri.parse('http://192.168.1.8:8000/get/user/$_userId'));
-        if (expensesResponse.statusCode == 200) {
-          final expensesData = jsonDecode(expensesResponse.body);
-          final List<dynamic> expensesList = expensesData['user']['expenses'];
-
-          setState(() {
-            _expenses =
-                expensesList.map((json) => Expense.fromJson(json)).toList();
-            _filteredExpenses = _expenses;
-            _isLoading = false;
-            _hasExpenses = _filteredExpenses.isNotEmpty; // Set the flag
-          });
-        } else {
-          throw Exception('Failed to load expenses');
-        }
+        final List<dynamic> expensesList = data['user']['expenses'];
+        setState(() {
+          _expenses =
+              expensesList.map((json) => Expense.fromJson(json)).toList();
+          _filteredExpenses = _expenses;
+          _isLoading = false;
+          _hasExpenses = _filteredExpenses.isNotEmpty; // Set the flag
+        });
       } else {
-        throw Exception('Failed to load user data');
+        throw Exception('Failed to load data');
       }
     } catch (error) {
       setState(() {
@@ -86,17 +69,13 @@ class _SearchExpensePageState extends State<SearchExpensePage> {
 
     try {
       List<Expense> filteredByCategory = [];
-
       if (categoryId == null || categoryId.isEmpty) {
-        // No category selected, use existing filtered expenses
         filteredByCategory = _filteredExpenses;
       } else {
         filteredByCategory = _expenses.where((expense) {
           return expense.category == categoryId;
         }).toList();
       }
-
-      // Apply the month filter on top of category filter
       _filterByMonth(_selectedMonth, filteredByCategory);
     } catch (error) {
       setState(() {
@@ -109,12 +88,8 @@ class _SearchExpensePageState extends State<SearchExpensePage> {
   void _filterByMonth(String? month, [List<Expense>? expensesToFilter]) {
     setState(() {
       _selectedMonth = month;
-
-      // Use the filtered expenses from previous filter or all expenses if not provided
       final expenses = expensesToFilter ?? _expenses;
-
       List<Expense> filteredByMonth;
-
       if (month == null || month.isEmpty) {
         filteredByMonth = expenses;
       } else {
@@ -124,9 +99,8 @@ class _SearchExpensePageState extends State<SearchExpensePage> {
           return expenseMonth == selectedMonth;
         }).toList();
       }
-
       _filteredExpenses = filteredByMonth;
-      _hasExpenses = _filteredExpenses.isNotEmpty; // Update the flag
+      _hasExpenses = _filteredExpenses.isNotEmpty;
       _isLoading = false;
     });
   }
@@ -158,7 +132,7 @@ class _SearchExpensePageState extends State<SearchExpensePage> {
       case 'December':
         return 12;
       default:
-        return 0; // Default case if month is not recognized
+        return 0;
     }
   }
 
@@ -180,7 +154,7 @@ class _SearchExpensePageState extends State<SearchExpensePage> {
     if (expense != null) {
       setState(() {
         _expenses.add(expense);
-        _filterExpenses(_searchQuery); // Ensure the search filter is applied
+        _filterExpenses(_searchQuery);
       });
     }
   }
@@ -258,10 +232,7 @@ class _SearchExpensePageState extends State<SearchExpensePage> {
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.deepPurple,
-                        Colors.black,
-                      ],
+                      colors: [Colors.deepPurple, Colors.black],
                     ),
                   ),
                   child: ListView.builder(
@@ -270,7 +241,6 @@ class _SearchExpensePageState extends State<SearchExpensePage> {
                       final expense = _filteredExpenses[index];
                       final categoryName =
                           _categoryNames[expense.category] ?? 'Unknown';
-
                       return Card(
                         color: Colors.white.withOpacity(0.1),
                         margin: const EdgeInsets.symmetric(

@@ -19,26 +19,22 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _checkToken() async {
-    // Retrieve the token from shared preferences
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('user_id');
 
-    // Navigate based on whether the token exists
     SchedulerBinding.instance.addPostFrameCallback((_) {
       Future.delayed(const Duration(seconds: 2), () {
         if (token != null) {
-          // Navigate to the main screen and remove all previous routes
           Navigator.pushNamedAndRemoveUntil(
             context,
             '/expense-screen',
-            (Route<dynamic> route) => false, // Remove all previous routes
+            (Route<dynamic> route) => false,
           );
         } else {
-          // Navigate to the login screen and remove all previous routes
           Navigator.pushNamedAndRemoveUntil(
             context,
             '/login',
-            (Route<dynamic> route) => false, // Remove all previous routes
+            (Route<dynamic> route) => false, 
           );
         }
       });
@@ -61,10 +57,9 @@ class _SplashScreenState extends State<SplashScreen> {
         ),
         child: Center(
           child: Image.asset(
-            'assets/images/logo.png',
-            // Adjust the logo size if needed
-            width: 150,
-            height: 150,
+            'assets/images/loogo.png',
+            width: 200,
+            height: 200,
           ),
         ),
       ),

@@ -37,8 +37,8 @@ class _SigninScreenState extends State<SigninScreen> {
           'username': nameController.text,
           'phone': numberController.text,
           'password': passwordController.text,
-          'category': [], // Assuming default empty categories
-          'expense': []   // Assuming default empty expenses
+          'category': [], 
+          'expense': []
         }),
       );
 
@@ -50,7 +50,6 @@ class _SigninScreenState extends State<SigninScreen> {
         final responseData = jsonDecode(response.body);
         final userId = responseData['user']['_id'];
 
-        // Optionally store user ID or other details
         await _storage.write(key: 'user_id', value: userId);
 
         ScaffoldMessenger.of(context).showSnackBar(
